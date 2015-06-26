@@ -5,6 +5,7 @@ use Goutte\Client;
 use Symfony\Component\BrowserKit\Cookie;
 
 // Initialize
+$start_time = time();
 $client = new Client;
 $main_url = 'http://academic.nutc.edu.tw/curriculum/show_subject/show_subject_form.asp?show_vol=1';
 $courses_detail_url = 'http://academic.nutc.edu.tw/curriculum/show_subject/show_subject_choose.asp';
@@ -21,19 +22,23 @@ $courses = $courses_page->filter('select > option')->each(function ($course) {
     return $course->attr('value');
 });
 
-// test once
-$cookie = new Cookie('show%5Fselect', iconv('UTF-8', 'big5', $courses[0]));
-$client->getCookieJar()->set($cookie);
-$course_detail = $client->request('post', $courses_detail_url);
+foreach ($courses as $course) {
+    // test once
+    $cookie = new Cookie('show%5Fselect', iconv('UTF-8', 'big5', $course));
+    $client->getCookieJar()->set($cookie);
+    $course_detail = $client->request('post', $courses_detail_url);
 
-// parsing data of course
-$course_node = $course_detail->filter('tr');
-$node_num = count($course_node) - 1;
+    // parsing data of course
+    $course_node = $course_detail->filter('tr');
+    $node_num = count($course_node) - 1;
 
-// Print each data of course
-$course_node->each(function ($data, $i) use ($node_num) {
-    // When the data that not first and last
-    if (($i != 0) and ($i != $node_num)) {
-        var_dump($data->text());
-    }
-});
+    // Print each data of course
+    $course_node->each(function ($data, $i) use ($node_num) {
+        // When the data that not first and last
+        if (($i != 0) and ($i != $node_num)) {
+            var_dump($data->text());
+        }
+    });
+}
+
+var_dump(time() - $start_time);
