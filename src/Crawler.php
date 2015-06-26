@@ -31,9 +31,12 @@ $course_node = $course_detail->filter('tr');
 $node_num = count($course_node) - 1;
 
 // Print each data of course
-$course_node->each(function ($data, $i) use ($node_num) {
+$course_node->each(function ($course, $i) use ($node_num) {
     // When the data that not first and last
     if (($i != 0) and ($i != $node_num)) {
-        var_dump($data->text());
+        $course_arr = $course->filter('td font')->each(function ($node) {
+            return $node->text();
+        });
+        var_dump($course_arr);
     }
 });
