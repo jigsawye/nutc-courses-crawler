@@ -26,4 +26,14 @@ $cookie = new Cookie('show%5Fselect', iconv('UTF-8', 'big5', $courses[0]));
 $client->getCookieJar()->set($cookie);
 $course_detail = $client->request('post', $courses_detail_url);
 
-var_dump($course_detail);
+// parsing data of course
+$course_node = $course_detail->filter('tr');
+$node_num = count($course_node) - 1;
+
+// Print each data of course
+$course_node->each(function ($data, $i) use ($node_num) {
+    // When the data that not first and last
+    if (($i != 0) and ($i != $node_num)) {
+        var_dump($data->text());
+    }
+});
