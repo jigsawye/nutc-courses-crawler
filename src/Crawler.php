@@ -36,11 +36,23 @@ foreach ($courses as $course) {
     $course_node->each(function ($course, $i) use ($node_num) {
         // When the data that not first and last
         if (($i != 0) and ($i != $node_num)) {
-            $course_arr = $course->filter('td font')->each(function ($node) {
+            // Parse data of course
+            $course_arr = $course->filter('td font')->each(function ($node, $i) {
+                // filter the suck code of data
+                if ($i == 13) {
+                    return null;
+                // Get the uri of 教學大綱
+                // full url: http://academic.nutc.edu.tw/registration/
+                // next_teach_flow/rot_show_teach_flow.asp?flow_no=xxxxxxxxxxx
+                } elseif ($i == 11) {
+                    $url = $node->selectLink('教學大綱')->link()->getUri();
+                    return substr($url, 89);
+                }
                 return $node->text();
             });
 
-            var_dump($course_arr);
+            print join("\t", $course_arr);
+            print "\n";
         }
     });
 }
