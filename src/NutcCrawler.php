@@ -1,11 +1,11 @@
 <?php
 
-namespace NutcCoursesCrawler;
+namespace AbysmalCamp;
 
 use Goutte\Client;
 use Symfony\Component\BrowserKit\Cookie;
 
-class NutcCoursesCrawler
+class NutcCrawler
 {
     private $start_time;
 

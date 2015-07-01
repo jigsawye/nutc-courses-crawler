@@ -1,5 +1,5 @@
 {
-    "name": "jigsawye/NutcCoursesCrawler",
+    "name": "abysmalcamp/nutc-crawler",
     "authors": [
         {
             "name": "jigsawye",
@@ -11,7 +11,7 @@
     },
     "autoload": {
         "psr-4": {
-            "NutcCoursesCrawler\\": "src/NutcCoursesCrawler/"
+            "AbysmalCamp\\": "src/"
         }
     },
     "license": "MIT",
