@@ -1,6 +1,6 @@
 <?php
 
-namespace src;
+namespace NutcCoursesCrawler;
 
 use Goutte\Client;
 use Symfony\Component\BrowserKit\Cookie;
