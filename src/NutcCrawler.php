@@ -116,12 +116,10 @@ class NutcCrawler
                 'params' => 'show_vol',
             ],
             'NIGHT' => [
-                'base' => 'night',
+                'sub_domain' => 'night',
                 'folder' => 'student_database',
                 'params' => 'a',
             ],
-            'menu' => 'form',
-            'detail' => 'choose',
         ];
 
         $base = 'http://%s.nutc.edu.tw/%s/%sshow_subject/';
