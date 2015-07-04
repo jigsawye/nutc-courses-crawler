@@ -11,23 +11,6 @@ class NutcCrawler
 
     private $client = null;
 
-    private $urls = [
-        'DAY' => [
-            'base' => 'http://academic.nutc.edu.tw/curriculum/',
-            'params' => 'show_vol=',
-        ],
-        'NIGHT' => [
-            'base' => 'http://night.nutc.edu.tw/student_database/',
-            'menu' => 'a=',
-        ],
-        'preselect' => [
-            'NO' => 'show_subject/',
-            'YES' => 'next_show_subject/',
-        ],
-        'menu' => 'show_subject_form.asp?',
-        'detail' => 'show_subject_choose.asp',
-    ];
-
     private $menu_url;
 
     private $detail_url;
@@ -44,9 +27,11 @@ class NutcCrawler
 
         $this->client = new Client;
 
-        print "Day of Night: $type\n";
+        print "Type: $type\n";
         print "Preselect: $preselect\n";
         print "Semester: $semester\n";
+        print "Menu url: $this->menu_url\n";
+        print "Detail url: $this->detail_url\n";
     }
 
     public function run()
@@ -79,7 +64,7 @@ class NutcCrawler
 
             // Print each data of course
             $course_node->each(function ($course, $i) use ($node_num) {
-                // When the data that not first and last
+                // When the data is not first and last
                 if (($i != 0) and ($i != $node_num)) {
                     $course_arr = $this->courseDataFormat($course);
 
@@ -93,17 +78,24 @@ class NutcCrawler
     {
         // Parse data of course
         $course_arr = $course->filter('td font')->each(function ($node, $i) {
-            // filter the suck code of data
-            if ($i == 13) {
-                return null;
-            // Get the uri of 教學大綱
-            // full url: http://academic.nutc.edu.tw/registration/
-            // next_teach_flow/rot_show_teach_flow.asp?flow_no=xxxxxxxxxxx
-            } elseif ($i == 11) {
-                $url = $node->selectLink('教學大綱')->link()->getUri();
-                return substr($url, 89);
+            $data = null;
+
+            switch ($i) {
+                case 11:
+                    // Get the id of 教學大綱
+                    // full url: http://academic.nutc.edu.tw/registration/
+                    // next_teach_flow/rot_show_teach_flow.asp?flow_no=xxxxxxxxxxx
+                    $url = $node->selectLink('教學大綱')->link()->getUri();
+                    $data = substr($url, 89);
+                    break;
+                case 13:
+                    break;
+                default:
+                    $data = $node->text();
+                    break;
             }
-            return $node->text();
+
+            return $data;
         });
 
         return $course_arr;
@@ -117,16 +109,38 @@ class NutcCrawler
 
     private function setUrls($type, $preselect, $semester)
     {
-        $base_url = $this->urls[$type]['base'] .
-            $this->urls['preselect'][$preselect];
+        $urls = [
+            'DAY' => [
+                'sub_domain' => 'academic',
+                'folder' => 'curriculum',
+                'params' => 'show_vol',
+            ],
+            'NIGHT' => [
+                'base' => 'night',
+                'folder' => 'student_database',
+                'params' => 'a',
+            ],
+            'menu' => 'form',
+            'detail' => 'choose',
+        ];
 
-        $this->menu_url = $base_url .
-            $this->urls['menu'] .
-            $this->urls[$type]['params'] .
-            $semester;
+        $base = 'http://%s.nutc.edu.tw/%s/%sshow_subject/';
 
-        $this->detail_url = $base_url .
-            $this->urls['detail'];
+        $base_url = sprintf(
+            $base,
+            $urls[$type]['sub_domain'],
+            $urls[$type]['folder'],
+            $preselect ? 'next_' : ''
+        );
+
+        $this->menu_url = $base_url . sprintf(
+            'show_subject_%s.asp?%s=%d',
+            'form',
+            $urls[$type]['params'],
+            $semester
+        );
+
+        $this->detail_url = $base_url . 'show_subject_choose.asp';
     }
 
     private function getCoursesListPage()
